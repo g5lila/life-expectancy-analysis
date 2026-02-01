@@ -1,5 +1,7 @@
 # Global Life Expectancy Data Analysis
 A statistical analysis identifying key predictors of global life expectancy
+![globe_photo](https://github.com/user-attachments/assets/cfa45bed-ad3b-4cff-bb3f-e5ae281e2a30)
+
 
 Life expectancy, the average amount of years a person is expected to live, is crucial to assessing population health. A measure of who we are, how we live, and what shapes a healthy life. In our global health class, we learn about life beyond just being a health metric, as it ties to policy-making, healthcare investment, community/schooling environments, and resource allocation. With this in mind, we wanted to look at all these factors and conduct a statistical analysis on its many factors. 
 
