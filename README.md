@@ -15,13 +15,12 @@ My family in East Africa faces health challenges ranging from limited healthcare
 
 - **Languages & tools:** R, Quarto, RStudio, with packages like ggplot, psych, knitr, etc. 
 
-- **Data:** [Life Expectancy (WHO) Updated](https://www.kaggle.com/datasets/lashagoch/life-expectancy-who-updated/data) from Kaggle, covering **179 countries from 2000 to 2015**. It was compiled from the WHO Global Health Observatory, the World Bank, UN Data, and Our World in Data.
+- **Data:** [Life Expectancy (WHO) Updated](https://www.kaggle.com/datasets/lashagoch/life-expectancy-who-updated/data) from Kaggle, covering 179 countries from 2000 to 2015. It was compiled from the WHO Global Health Observatory, the World Bank, UN Data, and Our World in Data.
 
-| File | Description |
-|------|-------------|
-| `EDA_FACTORS_LIFEEXP.qmd` | Quarto source code for the full analysis |
+
+| `EDA_FACTORS_LIFEEXP.qmd` | Quarto source code for full analysis |
 | `EDA_FACTORS_LIFEEXP.html` | Rendered report |
-| `data/Life-Expectancy-Data-Updated.csv` | Dataset used in the analysis |
+| `data/Life-Expectancy-Data-Updated.csv` | Dataset used in my analysis |
 
 ## Next Steps
 
