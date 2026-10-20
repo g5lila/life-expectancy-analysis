@@ -19,7 +19,9 @@ My family in East Africa faces health challenges ranging from limited healthcare
 
 
 `EDA_FACTORS_LIFEEXP.qmd` - Quarto source code for full analysis 
+
 `EDA_FACTORS_LIFEEXP.html` - Rendered report 
+
 `data/Life-Expectancy-Data-Updated.csv` - Dataset used in my analysis
 
 ## Next Steps
