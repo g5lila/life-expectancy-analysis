@@ -28,5 +28,3 @@ My family in East Africa faces health challenges ranging from limited healthcare
 ## Next Steps
 
 These findings are correlations, not causal effects. To go further, I plan to 1. run a multiple regression to find which factors stay significant when considered together and 2. address multicollinearity among the economic variables (GDP per capita, GDP category, economy status)
-
-**Gelila Yimtatu** · B.S. Data Science, William & Mary
