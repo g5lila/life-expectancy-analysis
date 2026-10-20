@@ -5,7 +5,7 @@
 An exploratory data analysis of what predicts how long people live across 179 countries, with a focus on how those factors differ in Africa.
 Project was completed in 2024.
 
-### [https://g5lila.github.io/life-expectancy-analysis/EDA_FACTORS_LIFEEXP.html](https://g5lila.github.io/life-expectancy-analysis/EDA_FACTORS_LIFEEXP.html)
+ [https://g5lila.github.io/life-expectancy-analysis/EDA_FACTORS_LIFEEXP.html](https://g5lila.github.io/life-expectancy-analysis/EDA_FACTORS_LIFEEXP.html)
 
 ## Overview
 
