@@ -1,0 +1,433 @@
+---
+title: "An EDA on the Factors on Life Expectancy"
+author: "Gelila Yimtatu"
+format: 
+  html:
+    code-fold: true
+    code-overflow: wrap
+    toc: true
+    toc-depth: 4
+    toc-title: Table of Contents
+theme:
+  light: flatly
+  dark: darkly
+embed-resources: true
+lightbox: true
+---
+
+<style>
+caption {
+  caption-side: top;
+  text-align: left;
+  font-weight: bold;
+}
+</style>
+
+# 1. The Research Problem
+
+&nbsp; &nbsp; &nbsp; My family members in East Africa face significant health challenges, from limited access to healthcare to the impacts of malnutrition and infectious diseases. Seeing these indicative struggles made me more curious about the bigger picture: what factors really determine how long people live across different countries? This prompted me to explore health data. Eventually, I came up with the research question: What are the most decisive predictive factors influencing global life expectancy? Looking into my chosen dataset, I see that it provides a unique insight to factors like demographic and immunization, and economic variables. I found this perspective fascinating because it made me realize that life expectancy is about more than just healthcare, rather it’s shaped by a range of interconnected factors that I hadn’t considered before.
+
+&nbsp; &nbsp; &nbsp; More than just running EDA, this project is my way of connecting the data back to real-world issues that many African countries face every day. I’m excited to explore the data to better understand how and why some regions face shorter life spans than others and what factors play a role in those differences. Ultimately, my hope is that the project lets me engage meaningfully with a topic that resonates with me on both a personal and global level.
+
+# 2. Research Questions
+
+1. What are the most decisive predictive factors influencing global life expectancy? (Primary Research Question)
+
+2. How do socioeconomic factors, such as GDP per capita and schooling years, compare to health factors, such as immunization rates and disease prevalence, in predicting life expectancy globally, and how does it compare region by region?
+
+3. How do the most decisive factors influencing life expectancy in Africa differ from overall global patterns?
+
+4. How do immunization rates like Hepatitis B, Measles, Polio, and Diphtheria, correlate with life expectancy across different regions, particularly in Africa?
+
+5. Is the relationship between socioeconomic factors (GDP per capita and years of schooling) and life expectancy stronger or weaker in African countries than in other regions?
+
+6. Particularly in Africa, do malnutrition indicators play a role for life expectancy predictions?
+
+# 3. Data Source
+
+&nbsp; &nbsp; &nbsp; I found this <a href="https://www.kaggle.com/datasets/lashagoch/life-expectancy-who-updated/data" target="_blank">Life Expectancy</a> dataset, which includes factors that come from the <a href="https://data.worldbank.org/" target="_blank">World Bank Data</a>, <a href="https://www.who.int/"target="_blank">World Health Organization (WHO) </a>, <a href="https://data.worldbank.org/" target="_blank">United Nations Data</a>, and <a href="https://data.worldbank.org/" target="_blank">Our World in Data</a> from the years 2000-2015. I found the cleaned dataset of this provided on Kaggle. It was originally made for the purpose of health data analysis. The 179 countries come from a GHO (Global Health Observatory, under the WHO) data repository and economic data that corresponded with them came from UNData. In the updated dataset, information about schooling was collected from Our World In Data, and Gross Domestic Income data came from the World Bank. The sources are reputable institutions known for providing accurate, peer-reviewed, and widely cited data. Kaggle is a platform that ensures credibility through community validation, while organizations like WHO, World Bank, and Our World in Data are recognized for their rigorous research standards, and provide reliable socioeconomic data while maintaining statistical accuracy.
+
+# 4. Exploratory Data Analysis
+
+## 4a. Overview
+
+```{r setup}
+
+# Loading my packages and setting global chunk options 
+
+knitr::opts_chunk$set(echo = TRUE,
+                      fig.align = "center")
+
+options(dplyr.summarise.inform = F)
+ 
+suppressPackageStartupMessages(library(tidyverse))
+suppressPackageStartupMessages(library(knitr))
+suppressPackageStartupMessages(library(psych))
+```
+
+```{r}
+
+life_expectancy_data <- read.csv("data/Life-Expectancy-Data-Updated.csv", header=TRUE, sep=",")
+
+kable(head(life_expectancy_data), caption = "First 6 rows of my life expectancy dataset")
+
+```
+
+&nbsp; &nbsp; &nbsp; In this exploratory data analysis (EDA), I am analyzing a dataset focused on life expectancy and the various factors that influence it across countries. My research questions explore the relationship between economic, socioeconomic, and health factors. I will analyze variables related to the regions, including a special focus on Africa, which has unique health challenges compared to other parts of the world. Using a variety of statistical techniques, including summary statistics, correlation analysis, and data visualizations, I aim to identify patterns that will help answer key research questions about the factors affecting life expectancy in different regions. For now, I focus on getting a general scope of the data. Later in my report, I compare Africa against other regions in more depth.
+
+&nbsp; &nbsp; &nbsp; The data is reasonably clean, with no major issues of missing values. Some outliers may exist, particularly in terms of GDP and health outcomes for certain countries. Additionally, I assume that regional classifications like "Africa" are accurate, and that the categories for economic status and immunization are relevant and meaningful in the context of the analysis. Note that these groupings are regions, not continents. I account for these assumptions when interpreting the results. 
+
+## 4b. Notable Variables
+
+### Notable Variable 1: Is_Africa
+
+```{r}
+life_expectancy_data <- life_expectancy_data %>%
+  mutate(Is_Africa = case_when(
+    Region == "Africa" ~ 1,
+    TRUE ~ 0
+  ))
+kable(head(life_expectancy_data), caption = "Life expectancy dataset with new Is_Africa column")
+```
+
+&nbsp; &nbsp; &nbsp; I created the binary variable "Is_Africa". Using the case_when() function within mutate(), this variable assigns a value of 1 to countries in the Africa region and 0 otherwise. This helps me quickly filter, group, and compare African countries against others, making it easier to assess if health outcomes and key life expectancy predictors behave differently in Africa. Since Africa has unique challenges like higher rates of infectious diseases and limited healthcare access, this variable is essential for isolating and testing whether the factors affecting life expectancy in Africa differ significantly from the rest of the world.
+
+### Notable Variable 2: Economy_status
+
+```{r}
+life_expectancy_data <- life_expectancy_data %>%
+  mutate(Economy_Status = case_when(
+    Economy_status_Developed == 1 ~ "Developed",
+    Economy_status_Developing == 1 ~ "Developing"
+  ))%>%
+  select(-Economy_status_Developed, -Economy_status_Developing)
+
+kable(head(life_expectancy_data), caption = "Life expectancy dataset with Economy_status column")
+```
+
+&nbsp; &nbsp; &nbsp; In the original dataset, I have two binary columns named 'Economy_status_developed' and 'Economy_status_developing', but my newly created 'Economy_status' variable combines them into one categorical variable. This variable labels each row as either "Developed" or "Developing". This simplifies my analysis by replacing two redundant columns with one clean category for easier grouping and my visualizations later.
+
+### Notable Variable 3: Adult_Mortality_Share
+
+```{r}
+life_expectancy_data <- life_expectancy_data %>%
+  mutate(
+    Adult_Mortality_Share = round((Adult_mortality / (Infant_deaths + Under_five_deaths + Adult_mortality)) * 100, 2)
+  )
+
+
+kable(head(life_expectancy_data), caption = "Dataset with Adult_Mortality_Share")
+
+```
+
+&nbsp; &nbsp; &nbsp; To better understand how different age groups contribute to overall mortality, I created a variable called "Adult_Mortality_Share." Using mutate(), I divide Adult_mortality by the sum of Infant_deaths, Under_five_deaths, and Adult_mortality, next multiply by 100, then round. This expresses the variable as a percentage, which serves as a relative measure of how heavily mortality falls on adults compared to young children. However, it does not represent the actual percentage of deaths among adults, because these variables use different denominators and under-five deaths already include infant deaths. For this reason, I use it to compare countries and regions rather than to describe the true share of adult deaths.
+
+
+### Notable Variable 4: Immunization_Sufficient
+
+```{r}
+life_expectancy_data <- life_expectancy_data %>%
+  mutate(Immunization_Coverage_Avg = (Hepatitis_B + Polio + Measles + Diphtheria) / 4) %>%
+  mutate(Immunization_Sufficient = case_when(
+    Immunization_Coverage_Avg >= 85 ~ "Sufficient",
+    Immunization_Coverage_Avg < 85 ~ "Insufficient"
+  )) %>%
+  select(-Immunization_Coverage_Avg)
+
+kable(head(life_expectancy_data), caption = "Dataset with Immunization_Sufficient")
+```
+
+&nbsp; &nbsp; &nbsp; To assess whether countries have broadly successful immunization programs, I created a variable called "Immunization_Sufficient". After calculating the average immunization coverage of Hepatitis B, Polio, Measles, and Diphtheria, I used case_when() to categorize countries as either "Sufficient" or "Insufficient" based on whether their average immunization rate is at/above or below 85%. I selected 85% because, according to public health guidelines, many infectious diseases require vaccination rates of 80-95% to achieve herd immunity, which helps prevent outbreaks and protect vulnerable populations. This threshold allows me to investigate whether countries that meet this standard tend to have higher life expectancy and stronger public health outcomes.
+
+### Notable Variable 5: GDP_category
+
+```{r}
+GDP_summary <- summary(life_expectancy_data$GDP_per_capita)
+low.gdp.upper <- GDP_summary["1st Qu."]
+high.gdp.lower <- GDP_summary["3rd Qu."]
+life_expectancy_data <- life_expectancy_data %>%
+  mutate(GDP_Category = case_when(
+    GDP_per_capita < low.gdp.upper ~ "Low GDP",
+    GDP_per_capita >= low.gdp.upper & GDP_per_capita <= high.gdp.lower ~ "Medium GDP",
+    GDP_per_capita > high.gdp.lower ~ "High GDP"
+  ))
+kable(head(life_expectancy_data), caption = "First 6 rows after adding GDP_Category")
+```
+
+&nbsp; &nbsp; &nbsp; I created a categorical variable called "GDP_Category". This variable was inspired by our movie ratings exercise in class, as it groups countries into "Low GDP", "Medium GDP", and "High GDP" categories based on the 1st and 3rd quartiles of GDP per capita. I used quartiles because GDP per capita can be heavily skewed by a few very wealthy countries, and quartiles are based on rank rather than the average, so these outliers do not distort the cutoffs. Instead of treating GDP as just a continuous number, this allows me to compare life expectancy across clear economic levels, which helps me analyze differences continent by continent and evaluate how economic status impacts health outcomes globally and within Africa.
+
+## 4c. Summary Statistics
+
+### Variable 1: Summary of African Life Expectancy vs. Non-African Countries
+
+```{r}
+africa_life_exp_summary <- summary(life_expectancy_data$Life_expectancy[life_expectancy_data$Is_Africa == 1])
+other_life_exp_summary <- summary(life_expectancy_data$Life_expectancy[life_expectancy_data$Is_Africa == 0])
+
+comparison_table <- data.frame(
+  Statistic = names(africa_life_exp_summary),
+  Africa = as.numeric(africa_life_exp_summary),
+  Rest_of_World = as.numeric(other_life_exp_summary)
+)
+
+kable(comparison_table, 
+      col.names = c("Statistic", "Africa", "Rest of World"),
+      caption = "Life Expectancy Summary: Africa vs. Rest of World")
+
+```
+
+
+&nbsp; &nbsp; &nbsp; The summary statistics reveal a stark divide between Africa and the rest of the world. The mean and median are close together in both groups, so we can infer relatively symmetric distributions. However, note that the median life expectancy of Africa is 16 years lower than the rest of the world's. In fact, the first and third quartiles show that a typical African country falls short of the global norm. Africa's upper quartile of 62 years falls well below the lower quartile for the rest of the world (69.7 years)! That said, Africa does have a wider range of life expectancy than the rest of the world, as its maximum is close to the upper quartile of the rest of the world. Perhaps the wide spread of life expectancy suggests that some African countries have made significant progress in healthcare and living conditions, while others remain in crisis. This raises the question of what separates higher-performing countries from the rest, and whether economic or health-related factors play a larger role.
+
+
+### Variable 2: Describing GDP_per_capita
+
+```{r}
+
+africa_gdp_summary <- psych::describe(life_expectancy_data$GDP_per_capita[life_expectancy_data$Is_Africa == 1])
+
+other_gdp_summary <- psych::describe(life_expectancy_data$GDP_per_capita[life_expectancy_data$Is_Africa == 0])
+
+gdp_comparison_table <- data.frame(
+  Statistic = rownames(t(africa_gdp_summary)),
+  Africa = as.numeric(africa_gdp_summary),
+  Rest_of_World = as.numeric(other_gdp_summary)
+)
+
+kable(gdp_comparison_table[-1, ],
+      digits = 2,
+      row.names = FALSE,
+      col.names = c("Statistic", "Africa", "Rest of World"),
+      caption = "GDP per Capita Summary (USD): Africa vs. Rest of World")
+```
+
+&nbsp; &nbsp; &nbsp; Through GDP per capita, we can really see just how extreme the economic inequalities are between Africa and the rest of the world. Africa's mean GDP per capita is six times lower than the mean GDP per capita for the other regions, and Africa's median is far lower. Even Africa's maximum GDP per capita of \$16,439 barely exceeds the rest of the world's mean of \$15,217. Both distributions are right-skewed, meaning most countries have a low-to-moderate GDP. However, the skew for Africa is stronger (2.39 vs. 1.93), so most African countries are clustered at low GDP. 
+
+&nbsp; &nbsp; &nbsp; Africa's higher kurtosis supports this, indicating that there exist extreme values that shape its distribution more heavily than the rest of the world. Since the distribution is right-skewed, these extreme values would sit on the high end. Which high-GDP African countries are pulling the tail, and what sets them apart? For this analysis, it also means that averages can overstate typical economic conditions in Africa, which is why I rely on medians and quartile-based GDP categories when comparing economic status and life expectancy.
+
+
+### Variable 3: Correlation with schooling and Life_expectancy
+
+```{r}
+schooling_life_exp_cor_global <- cor(life_expectancy_data$Schooling, life_expectancy_data$Life_expectancy, use = "complete.obs")
+
+schooling_life_exp_cor_africa <- cor(life_expectancy_data$Schooling[life_expectancy_data$Is_Africa == 1], 
+                                       life_expectancy_data$Life_expectancy[life_expectancy_data$Is_Africa == 1], 
+                                       use = "complete.obs")
+
+schooling_life_exp_cor_row <- cor(life_expectancy_data$Schooling[life_expectancy_data$Is_Africa == 0], 
+                                    life_expectancy_data$Life_expectancy[life_expectancy_data$Is_Africa == 0], 
+                                    use = "complete.obs")
+
+kable(data.frame(Group = c("Global", "Africa", "Rest of World"),
+                  Correlation = c(schooling_life_exp_cor_global, schooling_life_exp_cor_africa, schooling_life_exp_cor_row)),
+      caption = "Correlation Between Schooling and Life Expectancy")
+```
+
+
+&nbsp; &nbsp; &nbsp; The correlation between schooling and life expectancy globally is approximately 0.73, which shows a strong positive relationship. As the average number of years of schooling increases in a country, life expectancy tends to increase as well. This is consistent with a global analysis finding that each additional year of schooling is associated with a 2% reduction in adult mortality risk (IHME-CHAIN Collaborators). The strength of this relationship is notable because, while schooling is not a direct health factor, it is closely tied to many conditions that shape well-being. 
+
+&nbsp; &nbsp; &nbsp; Breaking this down by region reveals a notable difference: the correlation in Africa is only 0.37, compared to 0.64 in the rest of the world. Why do we see schooling in Africa as a much weaker predictor of life expectancy? This suggests Africa has heavier challenges, perhaps like disease outbreaks, poor healthcare infrastructure, or political instability, that play a larger relative role in shaping African life expectancy.
+
+
+### Variable 4: Outliers in Adult Mortality for African Countries
+
+```{r}
+africa_data <- life_expectancy_data %>%
+  filter(Region == "Africa")
+
+adult_mortality_outliers <- boxplot.stats(africa_data$Adult_mortality)$out
+
+adult_mortality_outliers_df <- africa_data %>%
+  filter(Adult_mortality %in% adult_mortality_outliers)
+
+knitr::kable(adult_mortality_outliers_df[, c("Country", "Year", "Adult_mortality",
+                                             "Life_expectancy", "GDP_Category",
+                                             "Immunization_Sufficient")])
+```
+
+
+
+
+&nbsp; &nbsp; &nbsp; This analysis identifies outliers in Adult_mortality within African countries. By filtering the dataset to focus only on Africa and applying the boxplot.stats() method, we detected 15 country-year observations with adult mortality much higher than the rest of the continent. All outliers come from Zimbabwe, Eswatini, and Lesotho between 2000 and 2007. This suggests a regional crisis in southern Africa during this period rather than isolated cases. The table shows life expectancy ranging from about 43 to 46 years, and most outliers (9 of 15) had low GDP. Highlighting these extremes shows the unequal distribution of health outcomes within Africa and supports our research question on the key factors influencing life expectancy on the continent. These outliers can also skew continent-wide statistics, so it is important to analyze them separately to avoid misrepresenting overall trends.
+
+
+## 4d. Data Visualizations
+
+### Bar Plot 1: GDP Category Counts
+
+```{r}
+ggplot(life_expectancy_data, aes(x = GDP_Category)) +
+  geom_bar(fill = "steelblue") +
+  labs(title = "Count of Countries by GDP Category", x = "GDP Category", y = "Count") +
+  theme_minimal()
+```
+
+&nbsp; &nbsp; &nbsp; This bar plot displays the number of country-year observations in each GDP category: High, Medium, and Low GDP. The Medium GDP group has the largest count, showing that most countries in the dataset fall into this middle range, while High GDP and Low GDP have equal counts because the categories are quartile-based: the bottom 25% are Low, the top 25% are High, and the middle 50% are Medium. This helps illustrate the global economic distribution within the dataset and provides context for analyzing health outcomes across different economic levels.
+
+### Bar Plot 2: Immunization Sufficiency Counts
+
+```{r}
+ggplot(life_expectancy_data, aes(x = Immunization_Sufficient)) +
+  geom_bar(fill = "darkorange") +
+  labs(title = "Count of Countries by Immunization Sufficiency", x = "Immunization Sufficiency", y = "Count") +
+  theme_minimal()
+```
+
+&nbsp; &nbsp; &nbsp; This bar plot shows how many country-year observations are categorized as having Sufficient or Insufficient immunization coverage. There are more countries with Sufficient coverage than Insufficient, suggesting that many countries are achieving decent immunization rates. However, the fact that a large portion are still Insufficient shows the ongoing gaps in global vaccine coverage, which may directly impact health outcomes like life expectancy. The relationship between each vaccine and life expectancy is examined in Wild Card Plot 1.
+
+### Histogram 1: Life Expectancy Distribution
+
+```{r}
+ggplot(life_expectancy_data, aes(x = Life_expectancy)) +
+  geom_histogram(binwidth = 5, fill = "purple", color = "black") +
+  labs(title = "Distribution of Life Expectancy", x = "Life Expectancy (Years)", y = "Frequency") +
+  theme_minimal()
+
+```
+
+&nbsp; &nbsp; &nbsp; This histogram displays the distribution of life expectancy across all country-year observations in the dataset. The majority of observations fall between 60 and 80 years, with a left-skewed distribution. We see that most observations cluster at higher values while a long tail extends down to about 40 years. This suggests global health disparities, where certain regions face significant challenges affecting longevity.
+
+
+### Histogram 2: Adult Mortality Distribution
+
+```{r}
+ggplot(life_expectancy_data, aes(x = Adult_mortality)) +
+  geom_histogram(binwidth = 50, fill = "darkred", color = "black") +
+  labs(title = "Distribution of Adult Mortality", x = "Adult Mortality", y = "Frequency") +
+  theme_minimal()
+```
+
+&nbsp; &nbsp; &nbsp; This histogram illustrates the distribution of Adult Mortality rates, showing a highly right-skewed distribution. Most observations have mortality rates below 200 deaths per 1,000 adults, but a few observations exceed 600 deaths per 1,000 adults. The values above 600 mostly correspond to the African outliers that we identified in Variable 4 (Zimbabwe, Lesotho, and Eswatini, 2000–2007)!
+
+
+### Box Plot 1: Life Expectancy by Economy Status
+
+
+```{r}
+ggplot(life_expectancy_data, aes(x = Economy_Status, y = Life_expectancy)) +
+  geom_boxplot(fill = "lightblue") +
+  labs(title = "Life Expectancy by Economy Status", x = "Economy Status", y = "Life Expectancy (Years)") +
+  theme_minimal()
+```
+
+&nbsp; &nbsp; &nbsp; This box plot compares life expectancy between Developed and Developing countries. Developed countries have higher median life expectancy (~80 years), with a smaller spread, meaning that most developed nations experience consistently high life spans. In contrast, developing countries show a wider range of life expectancy values, with some nations having significantly lower values (as low as about 40 years), emphasizing the stark health inequalities between economic groups.
+
+
+### Box Plot 2: Adult Mortality by GDP Category
+
+```{r}
+ggplot(life_expectancy_data, aes(x = factor(GDP_Category, levels = c("Low GDP", "Medium GDP", "High GDP")),
+                                 y = Adult_mortality)) +
+  geom_boxplot(fill = "lightgreen") +
+  labs(title = "Adult Mortality by GDP Category", x = "GDP Category", y = "Adult Mortality (per 1,000 adults)") +
+  theme_minimal()
+```
+
+&nbsp; &nbsp; &nbsp; This box plot shows how adult mortality varies across High, Medium, and Low GDP categories. Countries with Low GDP have the highest median adult mortality and the largest spread, while both Low and Medium GDP groups contain extreme outliers above 600 deaths per 1,000 adults. In contrast, High GDP countries have significantly lower adult mortality, reinforcing how economic wealth is closely tied to population health outcomes.
+
+### Scatter Plot 1: Schooling vs Life Expectancy with Reference Line
+
+```{r}
+ggplot(life_expectancy_data, aes(x = Schooling, y = Life_expectancy)) +
+  geom_point(alpha = 0.6, color = "darkgreen") +
+  geom_smooth(method = "lm", se = FALSE, color = "red") +
+  labs(title = "Schooling vs Life Expectancy", x = "Schooling (Years)", y = "Life Expectancy (Years)") +
+  theme_minimal()
+```
+
+&nbsp; &nbsp; &nbsp; This scatter plot explores the relationship between schooling years and life expectancy, with a red reference line representing the trend. There is a clear positive correlation, showing that as the average years of schooling increase, so does life expectancy. This matches the global correlation of 0.73 from Variable 3, although the relationship is weaker in Africa (0.37).
+
+
+### Scatter Plot 2: GDP per Capita vs Life Expectancy with Reference Line
+
+```{r}
+ggplot(life_expectancy_data, aes(x = GDP_per_capita, y = Life_expectancy)) +
+  geom_point(alpha = 0.6, color = "navy") +
+  geom_smooth(method = "loess", se = FALSE, color = "orange") +
+  labs(title = "GDP per Capita vs Life Expectancy", x = "GDP per Capita", y = "Life Expectancy (Years)") +
+  theme_minimal()
+```
+
+&nbsp; &nbsp; &nbsp; This scatter plot displays GDP per capita against life expectancy, with an orange smoothed trend line. While there is a positive relationship, the effect of GDP appears to level off after around 10,000–20,000 GDP per capita, where increases in wealth lead to smaller gains in life expectancy. This shows that while economic growth is vital for health improvements, other factors like healthcare quality, education, and inequality might play larger roles in wealthier nations.
+
+
+### Wild Card Plot 1: Economic vs. Health Factors
+
+```{r}
+factors <- c("GDP_per_capita", "Schooling", "Incidents_HIV",
+             "Hepatitis_B", "Measles", "Polio", "Diphtheria",
+             "BMI", "Thinness_five_nine_years", "Thinness_ten_nineteen_years")
+
+cor_data <- life_expectancy_data %>%
+  mutate(Group = ifelse(Region == "Africa", "Africa", "Rest of World")) %>%
+  bind_rows(life_expectancy_data %>% mutate(Group = "Global")) %>%
+  select(Group, Life_expectancy, all_of(factors)) %>%
+  pivot_longer(all_of(factors), names_to = "Factor", values_to = "Value") %>%
+  group_by(Group, Factor) %>%
+  summarise(Correlation = cor(Value, Life_expectancy, use = "complete.obs"),
+            .groups = "drop") %>%
+  mutate(Category = case_when(
+    Factor %in% c("GDP_per_capita", "Schooling") ~ "Socioeconomic",
+    Factor == "Incidents_HIV" ~ "Disease",
+    Factor %in% c("Hepatitis_B", "Measles", "Polio", "Diphtheria") ~ "Immunization",
+    TRUE ~ "Nutrition"))
+
+# Chart
+ggplot(cor_data, aes(x = Correlation, y = reorder(Factor, abs(Correlation)), color = Group)) +
+  geom_point(size = 3) +
+  geom_vline(xintercept = 0, linetype = "dashed") +
+  facet_grid(Category ~ ., scales = "free_y", space = "free_y") +
+  labs(title = "Correlation of Each Factor with Life Expectancy",
+       x = "Correlation with Life Expectancy", y = NULL, color = NULL) +
+  theme_minimal()
+```
+
+&nbsp; &nbsp; &nbsp; This chart shows the correlation between each factor that was on my table and life expectancy for all countries (Global), African countries, and the rest of the world, grouped into socioeconomic, disease, immunization, and nutrition factors. Globally, the factors most strongly associated with life expectancy are schooling (about 0.73), Polio and Diphtheria immunization (about 0.64), BMI (about 0.60), GDP per capita (about 0.58), and HIV incidence (about −0.55). At the global level, socioeconomic and health factors are similarly strong, but Africa looks different. In Africa, schooling (about 0.37) and GDP per capita (about 0.44) are much weaker than in the rest of the world, while immunization rates (about 0.43 to 0.55), BMI (about 0.50), and HIV incidence (about −0.47) are as strong or stronger. This shows that health factors matter as much as, or more than, socioeconomic factors in explaining life expectancy in Africa. Immunization correlations are similar in Africa and the rest of the world, except for Hepatitis B, which is noticeably stronger in Africa. For malnutrition, thinness among children and adolescents is only weakly related to life expectancy in Africa (about −0.17) compared with about −0.45 elsewhere, while BMI remains moderately strong. Because these are correlations, they show which factors are most closely associated with life expectancy, not which ones cause it.
+
+
+### Wild Card Plot 2: Histogram of Schooling
+
+
+```{r}
+life_expectancy_data %>%
+  mutate(Group = ifelse(Region == "Africa", "Africa", "Rest of World")) %>%
+  ggplot(aes(x = Schooling, fill = Group)) +
+  geom_histogram(binwidth = 1, color = "black", alpha = 0.6, position = "identity") +
+  labs(title = "Distribution of Schooling: Africa vs. Rest of World",
+       x = "Schooling (Years)", y = "Frequency", fill = NULL) +
+  theme_minimal()
+```
+
+
+&nbsp; &nbsp; &nbsp; This histogram compares the distribution of schooling years for African observations and the rest of the world. African observations are concentrated at lower levels, mostly between 1 and 7 years, while observations from the rest of the world cluster between about 7 and 13 years, and very few African observations exceed 10 years. The gap may partly explain the weaker schooling–life expectancy correlation in Africa (0.37 vs. 0.64). Most African observations fall within a narrow, low range of schooling, where other factors such as disease and immunization may play a larger role.
+
+
+
+## 4e. Challenges
+
+**Challenge 1:** One of the problems I faced while conducting my research was visualizing categorical data, such as comparing health outcomes between Developed vs. Developing countries, in a way that properly represented the distribution of the data. Sometimes a large range of overlapping data points caused crowding, so I had to adjust plot parameters and decide how to group or highlight certain categories. This took more time, but it made my visualizations and statistics clearer.
+
+
+**Challenge 2:** I also struggled with multicollinearity in the correlation analysis. GDP per capita, GDP category, and economy status are all highly correlated with one another, since GDP category is created directly from GDP per capita and economy status is closely tied to a country’s wealth. Because these variables largely measure the same thing, it was difficult to separate the unique contribution of each one when interpreting their relationship with health outcomes, especially in scatter plots and correlation analyses. For my final project, I plan to examine this multicollinearity more closely and decide which economic variable best represents wealth in my models.
+
+
+# 5. Preliminary Conclusions and Next Steps
+
+&nbsp; &nbsp; &nbsp; From the first look at the data there are a number of quite striking findings. The factors most strongly associated with life expectancy globally are education, polio and diphtheria immunization, BMI, GDP per capita and HIV incidence. At the global level, the socioeconomic and health factors are similarly strong, but the picture in Africa is very different. Life expectancy in Africa is around 16 years lower than in the rest of the world and both education and GDP per capita are less strongly associated with life expectancy in Africa. One possible explanation is that most African observations fall within a narrow, low range of both schooling and GDP, which may limit how much these factors can explain differences in life expectancy. The health factors (immunization and HIV incidence) are as strongly or more strongly associated with life expectancy in Africa as the socioeconomic factors are.
+
+&nbsp; &nbsp; &nbsp; Of the immunization rates, Polio and Diphtheria have the strongest relationships with life expectancy across the regions. Hepatitis B is the only one that is actually more strongly associated with life expectancy in Africa than anywhere else. With malnutrition, the relationship of thinness in children and adolescents with life expectancy is very weak in Africa, whereas BMI has a moderate relationship. The outlier analysis showed that the most extreme adult mortality was in Zimbabwe, Lesotho and Eswatini between 2000 and 2007 (with Eswatini having medium GDP and adequate immunization) which again suggests that it's not just a matter of economic development and immunization that explains the worst outcomes. 
+
+&nbsp; &nbsp; &nbsp; The key message from this is that extending life expectancy in Africa may require more health-based initiatives than economic development. However, it should be noted that what has been discussed so far is merely correlation. As everyone who has taken any statistics course knows, correlation does not imply causality. The findings presented above only reveal which variables tend to go hand in hand with life expectancy but not the ones that drive it. It is now time to move forward and use statistical methods instead of just looking at graphs with correlated points. For the final project, I am going to run a regression analysis to find out which variables are still significant when all of them are considered.
+      
+
+# References
+
+<a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC10901745/">NIH.gov</a>
+
+<a href="https://www.nature.com/articles/s41598-024-84481-2">Source 2: Nature.com</a>
+
+
+
+
+
