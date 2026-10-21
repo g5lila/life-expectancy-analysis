@@ -4,7 +4,7 @@
 
 An exploratory data analysis of what predicts how long people live across 179 countries, with a focus on how those factors differ in Africa! My project answers this in two parts: an exploratory data analysis followed by a regression model that tests which ones still matter when considered together. 
 
-## Data
+### Data
 
 [Life Expectancy (WHO) Updated](https://www.kaggle.com/datasets/lashagoch/life-expectancy-who-updated/data) from Kaggle, covering 179 countries from 2000 to 2015. It was compiled from the WHO Global Health Observatory, the World Bank, UN Data, and Our World in Data.
 
@@ -14,7 +14,7 @@ An exploratory data analysis of what predicts how long people live across 179 co
 
    Some takeaways include that median life expectancy in Africa is 16 years lower than in the rest of the world. Globally, schooling is the strongest correlate of life expectancy (r ≈ 0.73), but in Africa that relationship is much weaker (r ≈ 0.37), and GDP follows the same pattern. Instead, health factors like immunization and HIV incidence matter as much as or more than schooling and GDP in Africa. The most extreme adult mortality in the dataset was concentrated in Zimbabwe, Lesotho, and Eswatini between 2000 and 2007.
 
-## Methods & Tools
+### Methods & Tools
 
 - R, Quarto, RStudio, with packages like ggplot, psych, and knitr
 
@@ -26,7 +26,7 @@ An exploratory data analysis of what predicts how long people live across 179 co
 
   - `data/Life-Expectancy-Data-Updated.csv` - Dataset used in my analysis
 
-## Next Steps
+### Next Steps
 
 These findings are correlations, not causal effects. To go further, I plan to 1. run a multiple regression to find which factors stay significant when considered together and 2. address multicollinearity among the economic variables (GDP per capita, GDP category, economy status)
 
