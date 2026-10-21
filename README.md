@@ -45,6 +45,5 @@ These findings are correlations, not causal effects. To go further, I plan to 1.
   - `presentation.pdf` - My presentation slides
     
 ## Concluding Comments 
-
-   The regression fit in well with my takeaway from Part 1. [insert sentence why specifics]. One difference is that Part 1 compared Africa to the rest of the world, while the regression was fit on all countries together, so it does not test whether those regional differences hold up in a full model. Both parts show associations, not causal effects, and because each country appears once per year, the observations are not fully independent.
-
+   
+   The regression analysis validated the main message I drew from my EDA, in that education, BMI, GDP per capita, and HIV prevalence were some of the strongest correlations on the global scale in Part 1 and all four remained in the final regression analysis model. The largest discrepancy was in the case of immunizations. In Part 1, Polio and Diphtheria were the most correlated vaccines with life expectancy, but in Part 2, I excluded them due to their high correlation with other explanatory variables, so only Hepatitis B and Measles remained in the model. Both parts show correlation, not causation, and the observations are not fully independent since each country appears once per year. This was a fun project that strengthened my understanding of how exploratory analysis and regression work together, and it gave me a better picture of the health challenges facing Africa!
