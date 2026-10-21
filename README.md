@@ -10,6 +10,8 @@ An exploratory data analysis of what predicts how long people live across 179 co
 
 ## Part 1: Overview of [my EDA Analysis](https://g5lila.github.io/life-expectancy-analysis/eda_report/EDA_FACTORS_LIFEEXP.html)
 
+https://g5lila.github.io/life-expectancy-analysis/eda_report/EDA_FACTORS_LIFEEXP.html
+
    My family in East Africa faces lots of health challenges, and so I decided to explore the bigger picture: what actually determines life expectancy, and does the answer change in Africa? In my report, I compare how socioeconomic factors like GDP and schooling stack up against health factors like immunization and disease, both globally and in Africa.
 
    Some takeaways include that median life expectancy in Africa is 16 years lower than in the rest of the world. Globally, schooling is the strongest correlate of life expectancy (r ≈ 0.73), but in Africa that relationship is much weaker (r ≈ 0.37), and GDP follows the same pattern. Instead, health factors like immunization and HIV incidence matter as much as or more than schooling and GDP in Africa. The most extreme adult mortality in the dataset was concentrated in Zimbabwe, Lesotho, and Eswatini between 2000 and 2007.
