@@ -8,7 +8,7 @@ An exploratory data analysis of what predicts how long people live across 179 co
 
 [Life Expectancy (WHO) Updated](https://www.kaggle.com/datasets/lashagoch/life-expectancy-who-updated/data) from Kaggle, covering 179 countries from 2000 to 2015. It was compiled from the WHO Global Health Observatory, the World Bank, UN Data, and Our World in Data.
 
-## Part 1: Overview of [my EDA Analysis](https://g5lila.github.io/life-expectancy-analysis/eda_report/EDA_FACTORS_LIFEEXP.html)
+## Part 1: Overview of [my EDA Analysis](https://g5lila.github.io/life-expectancy-analysis/)
 
 https://g5lila.github.io/life-expectancy-analysis/eda_report/EDA_FACTORS_LIFEEXP.html
 
